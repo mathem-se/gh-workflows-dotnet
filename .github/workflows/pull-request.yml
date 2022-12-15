@@ -3,7 +3,8 @@ on:
     inputs:
       dotnet-version:
         required: false
-        default: 6.0.x
+        type: string
+        default: "6.0.x"
 
 jobs:
   Test:

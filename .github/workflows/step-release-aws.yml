@@ -13,10 +13,10 @@ on:
       AWS_DEPLOY_REGION:
         required: true
         type: string
-      node-version:
-        type: number
+      dotnet-version:
+        type: string
         required: false
-        default: 16
+        default: "6.0.x"
     secrets:
       AWS_ACCOUNT:
         required: true
