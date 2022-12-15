@@ -39,13 +39,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build and Run tests
-        uses: mathem-se/gh-workflows-dotnet/.github/actions/build
+        uses: mathem-se/gh-workflows-dotnet/.github/actions/build/action.yml@main
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
 
   Release:
     needs: [Account, Test]
-    uses: mathem-se/gh-workflows-dotnet/.github/workflows/step-release-aws.yml
+    uses: mathem-se/gh-workflows-dotnet/.github/workflows/step-release-aws.yml@main
     with:
       domain: ${{ inputs.domain }}
       team: ${{ inputs.team }}
