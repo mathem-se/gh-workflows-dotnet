@@ -1,0 +1,69 @@
+on:
+  workflow_call:
+    inputs:
+      domain:
+        required: true
+        type: string
+      team:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      AWS_DEPLOY_REGION:
+        required: true
+        type: string
+      node-version:
+        type: number
+        required: false
+        default: 16
+    secrets:
+      AWS_ACCOUNT:
+        required: true
+      AWS_CICD_API_REGION:
+        required: true
+      NODE_AUTH_TOKEN:
+        required: true
+
+env:
+  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+
+jobs:
+  Release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/github-actions
+          role-session-name: github-actions-oidc-session
+          aws-region: ${{ secrets.AWS_CICD_API_REGION }}
+      - name: Build
+        shell: bash
+        run: |
+          sam build \
+          --parallel \
+          --config-file ./samconfig.toml \
+          --config-env ${{ inputs.environment }}
+      - name: Deploy
+        shell: bash
+        run: |
+          sam deploy \
+          --no-confirm-changeset \
+          --no-fail-on-empty-changeset \
+          --stack-name ${{ github.event.repository.name }} \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+          --region ${{ inputs.AWS_DEPLOY_REGION }} \
+          --s3-prefix ${{ github.event.repository.name }} \
+          --resolve-s3 \
+          --config-file ./samconfig.toml \
+          --config-env ${{ inputs.environment }} \
+          --tags \
+            'domain=${{ inputs.domain }} \
+            team=${{ inputs.team }}'
