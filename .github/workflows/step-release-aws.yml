@@ -22,11 +22,6 @@ on:
         required: true
       AWS_CICD_API_REGION:
         required: true
-      NODE_AUTH_TOKEN:
-        required: true
-
-env:
-  NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
 
 jobs:
   Release:
