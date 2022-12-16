@@ -45,7 +45,7 @@ jobs:
         shell: bash
         run: |
           dotnet restore
-          dotnet build -c Release --no-restore /WarnAsError
+          dotnet build -c Release --no-restore
       - name: Test
         shell: bash
         run: |
