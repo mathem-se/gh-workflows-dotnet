@@ -45,7 +45,7 @@ jobs:
         shell: bash
         run: |
           dotnet restore
-          dotnet build -c Release --no-restore
+          dotnet build -c Release --no-restore /p:NoWarn=1591
       - name: Test
         shell: bash
         run: |
