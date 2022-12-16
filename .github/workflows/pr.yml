@@ -11,7 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build and Run tests
-        uses: ./.github/actions/build/action.yml@main
+      - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Build and Run tests
+        shell: bash
+        run: |
+          dotnet restore
+          dotnet build -c Release --no-restore /WarnAsError
+      - name: Test
+        shell: bash
+        run: |
+          dotnet test -c Release --no-restore --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" || true
+      - name: Visualize test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: DotNET Tests
+          path: "**/test-results.trx"
+          reporter: dotnet-trx
+          fail-on-error: true
