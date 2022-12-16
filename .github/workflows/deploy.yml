@@ -1,30 +1,50 @@
 on:
   workflow_call:
     inputs:
+      AWS_DEPLOY_REGION:
+        required: false
+        type: string
+        default: "eu-west-1"
       domain:
         required: true
         type: string
       team:
         required: true
         type: string
-      environment:
-        required: true
-        type: string
-      AWS_DEPLOY_REGION:
-        required: true
-        type: string
       dotnet-version:
-        type: string
         required: false
+        type: string
         default: "6.0.x"
+
     secrets:
-      AWS_ACCOUNT:
+      AWS_CICD_ACCOUNT:
+        required: true
+      AWS_CICD_API_URL:
         required: true
       AWS_CICD_API_REGION:
         required: true
-
 jobs:
+  Account:
+    uses: mathem-se/gh-account-mapping/.github/workflows/workflow.yml@main
+    with:
+      branch: ${{ github.ref_name }}
+      role-session-name: "github-actions-oidc-session"
+    secrets:
+      AWS_ACCOUNT: ${{ secrets.AWS_CICD_ACCOUNT }}
+      AWS_API: ${{ secrets.AWS_CICD_API_URL }}
+      AWS_REGION: ${{ secrets.AWS_CICD_API_REGION }}
+
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and Run tests
+        uses: mathem-se/gh-workflows-dotnet/.github/actions/build/action.yml@main
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+
   Release:
+    needs: [Account, Test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -36,7 +56,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/github-actions
+          role-to-assume: arn:aws:iam::${{ needs.Account.outputs.account }}:role/github-actions
           role-session-name: github-actions-oidc-session
           aws-region: ${{ secrets.AWS_CICD_API_REGION }}
       - name: Build
@@ -45,7 +65,7 @@ jobs:
           sam build \
           --parallel \
           --config-file ./samconfig.toml \
-          --config-env ${{ inputs.environment }}
+          --config-env ${{ needs.Account.outputs.environment }}
       - name: Deploy
         shell: bash
         run: |
@@ -58,7 +78,7 @@ jobs:
           --s3-prefix ${{ github.event.repository.name }} \
           --resolve-s3 \
           --config-file ./samconfig.toml \
-          --config-env ${{ inputs.environment }} \
+          --config-env ${{ needs.Account.outputs.environment }} \
           --tags \
             'domain=${{ inputs.domain }} \
             team=${{ inputs.team }}'
