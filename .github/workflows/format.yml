@@ -7,7 +7,7 @@ on:
         default: "6.0.x"
 
 jobs:
-  Test:
+  Format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
