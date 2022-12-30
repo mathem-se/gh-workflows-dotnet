@@ -1,0 +1,21 @@
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: false
+        type: string
+        default: "6.0.x"
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ inputs.dotnet-version }}
+      - name: Verify code formating 
+        shell: bash
+        run: |
+          dotnet format --verify-no-changes
+      
