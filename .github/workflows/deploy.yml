@@ -87,6 +87,7 @@ jobs:
           --resolve-s3 \
           --config-file ./samconfig.toml \
           --config-env ${{ needs.Account.outputs.environment }} \
+          --resolve-image-repos \
           --tags \
             'domain=${{ inputs.domain }} \
             team=${{ inputs.team }}'
