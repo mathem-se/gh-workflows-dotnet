@@ -5,8 +5,22 @@ on:
         required: false
         type: string
         default: "6.0.x"
+      CHECK_IAM:
+        type: boolean
+        default: true
 
 jobs:
+  Check-IAM:
+    if: ${{ inputs.CHECK_IAM }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3      
+    - name: Run validation
+      uses:  mathem-se/iam-template-analyzer@main
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: ${{ github.head_ref }} 
   Test:
     runs-on: ubuntu-latest
     steps:
