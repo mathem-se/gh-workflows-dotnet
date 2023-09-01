@@ -12,7 +12,7 @@ jobs:
   PR:
     uses: mathem-se/gh-workflows-dotnet/.github/workflows/pr.yml@@main
     with:
-      CHECK_IAM: false #if you don't want to check lint (defaults to true)
+      CHECK_IAM: false #if you don't want to check IAM (defaults to true)
 ```
 
 ### Deploy to AWS with SAM
