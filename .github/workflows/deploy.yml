@@ -22,7 +22,7 @@ on:
       sam-config-file:
         type: string
         required: false
-        default: 'samconfig.toml'
+        default: ''
 
     secrets:
       AWS_CICD_ACCOUNT:
@@ -114,6 +114,7 @@ jobs:
           --no-confirm-changeset \
           --no-fail-on-empty-changeset \
           --stack-name ${{ github.event.repository.name }} \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
           --region ${{ inputs.AWS_DEPLOY_REGION }} \
           --s3-prefix ${{ github.event.repository.name }} \
           --resolve-s3 \
