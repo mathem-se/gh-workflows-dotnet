@@ -15,6 +15,14 @@ on:
         required: false
         type: string
         default: "6.0.x"
+      sam-template-file:
+        type: string
+        required: false
+        default: ''
+      sam-config-file:
+        type: string
+        required: false
+        default: ''
 
     secrets:
       AWS_CICD_ACCOUNT:
@@ -70,13 +78,38 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          if [ ! -z "${{ inputs.sam-template-file }}" ]
+          then
+              template_file_param="--template-file ${{ inputs.sam-template-file }}"
+          else
+              template_file_param=""
+          fi
+          if [ ! -z "${{ inputs.sam-config-file }}" ]
+          then
+              config_file_param="--config-file ${{ inputs.sam-config-file }}"
+          else
+              config_file_param=""
+          fi          
           sam build \
           --parallel \
-          --config-file ./samconfig.toml \
-          --config-env ${{ needs.Account.outputs.environment }}
+          $config_file_param \
+          --config-env ${{ needs.Account.outputs.environment }} \
+          $template_file_param
       - name: Deploy
         shell: bash
         run: |
+          if [ ! -z "${{ inputs.sam-template-file }}" ]
+          then
+              template_file_param="--template-file ${{ inputs.sam-template-file }}"
+          else
+              template_file_param=""
+          fi
+          if [ ! -z "${{ inputs.sam-config-file }}" ]
+          then
+              config_file_param="--config-file ${{ inputs.sam-config-file }}"
+          else
+              config_file_param=""
+          fi               
           sam deploy \
           --no-confirm-changeset \
           --no-fail-on-empty-changeset \
@@ -85,9 +118,10 @@ jobs:
           --region ${{ inputs.AWS_DEPLOY_REGION }} \
           --s3-prefix ${{ github.event.repository.name }} \
           --resolve-s3 \
-          --config-file ./samconfig.toml \
+          $config_file_param \
           --config-env ${{ needs.Account.outputs.environment }} \
           --resolve-image-repos \
           --tags \
             'domain=${{ inputs.domain }} \
-            team=${{ inputs.team }}'
+            team=${{ inputs.team }}'\
+          $template_file_param 
