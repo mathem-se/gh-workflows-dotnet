@@ -5,6 +5,10 @@ on:
         required: false
         type: string
         default: "6.0.x"
+      private-nuget-source:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   Format:
@@ -14,8 +18,11 @@ jobs:
       - uses: actions/setup-dotnet@v2
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
+      
+      - name: Add private nuget source
+        if: private-nuget-source
+        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "MathemGithub" --password "${{ secrets.GH_PACKAGE_READ_ONLY }}" --store-password-in-clear-text
+      
       - name: Verify code formating 
-        shell: bash
-        run: |
-          dotnet format --verify-no-changes
+        run: dotnet format --verify-no-changes
       
