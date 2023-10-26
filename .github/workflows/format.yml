@@ -9,9 +9,6 @@ on:
         required: false
         type: boolean
         default: false
-    secrets:
-      GH_PACKAGE_READ_ONLY:
-        required: true
 
 jobs:
   Format:
@@ -24,8 +21,7 @@ jobs:
       
       - name: Add private nuget source
         if: ${{ inputs.private-nuget-source }}
-        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "MathemGithub" --password "${{ secrets.GH_PACKAGE_READ_ONLY }}" --store-password-in-clear-text
+        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "MathemGithub" --password "${{ secrets.GITHUB_TOKEN }}"
       
       - name: Verify code formating 
         run: dotnet format --verify-no-changes
-      
