@@ -9,6 +9,9 @@ on:
         required: false
         type: boolean
         default: false
+    secrets:
+      GH_PACKAGE_READ_ONLY:
+        required: true
 
 jobs:
   Format:
