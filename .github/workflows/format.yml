@@ -20,7 +20,7 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
       
       - name: Add private nuget source
-        if: private-nuget-source == true
+        if: ${{ inputs.private-nuget-source }}
         run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "MathemGithub" --password "${{ secrets.GH_PACKAGE_READ_ONLY }}" --store-password-in-clear-text
       
       - name: Verify code formating 
