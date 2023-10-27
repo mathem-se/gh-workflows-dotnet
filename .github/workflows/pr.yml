@@ -12,6 +12,9 @@ on:
         required: false
         type: boolean
         default: false
+      private-nuget-username:
+        required: false
+        type: string
     secrets:
       GH-TOKEN:
         required: false
@@ -38,7 +41,7 @@ jobs:
           
       - name: Add private nuget source
         if: ${{ inputs.private-nuget-source }}
-        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "MathemGithub" --password "${{ secrets.GH-TOKEN }}" --store-password-in-clear-text
+        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "${{ inputs.private-nuget-username }}" --password "${{ secrets.GH-TOKEN }}" --store-password-in-clear-text
       
       - name: Build and Run tests
         shell: bash
