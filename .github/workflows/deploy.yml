@@ -31,6 +31,7 @@ on:
         required: true
       AWS_CICD_API_REGION:
         required: true
+
 jobs:
   Account:
     uses: mathem-se/gh-account-mapping/.github/workflows/workflow.yml@main
@@ -46,9 +47,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v2
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
+          source-url: https://nuget.pkg.github.com/mathem-se/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY }}
       - name: Build and Run tests
         shell: bash
         run: |
@@ -66,9 +70,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
+          source-url: https://nuget.pkg.github.com/mathem-se/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
