@@ -23,13 +23,6 @@ on:
         type: string
         required: false
         default: ''
-      private-nuget-source:
-        required: false
-        type: boolean
-        default: false
-      private-nuget-username:
-        required: false
-        type: string
 
     secrets:
       AWS_CICD_ACCOUNT:
@@ -38,8 +31,7 @@ on:
         required: true
       AWS_CICD_API_REGION:
         required: true
-      GH-TOKEN:
-        required: false
+
 jobs:
   Account:
     uses: mathem-se/gh-account-mapping/.github/workflows/workflow.yml@main
@@ -55,12 +47,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v2
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
-      - name: Add private nuget source
-        if: ${{ inputs.private-nuget-source }}
-        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "${{ inputs.private-nuget-username }}" --password " ${{ secrets.GH-TOKEN }}" --store-password-in-clear-text
+          source-url: https://nuget.pkg.github.com/mathem-se/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY }}
       - name: Build and Run tests
         shell: bash
         run: |
@@ -78,18 +70,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ inputs.dotnet-version }}
+          source-url: https://nuget.pkg.github.com/mathem-se/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::${{ needs.Account.outputs.account }}:role/github-actions
           role-session-name: github-actions-oidc-session
           aws-region: ${{ secrets.AWS_CICD_API_REGION }}
-      - name: Add private nuget source
-        if: ${{ inputs.private-nuget-source }}
-        run: dotnet nuget add source "https://nuget.pkg.github.com/mathem-se/index.json" --name "mathem-se" --username "${{ inputs.private-nuget-username }}" --password " ${{ secrets.GH-TOKEN }}" --store-password-in-clear-text
       - name: Build
         shell: bash
         run: |
