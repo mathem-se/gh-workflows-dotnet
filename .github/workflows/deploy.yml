@@ -31,6 +31,8 @@ on:
         required: true
       AWS_CICD_API_REGION:
         required: true
+      GH_PACKAGE_READ_ONLY:
+        required: false
 
 jobs:
   Account:
@@ -52,7 +54,7 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
           source-url: https://nuget.pkg.github.com/mathem-se/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY }}
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY || 'NOTATOKEN' }}
       - name: Build and Run tests
         shell: bash
         run: |
@@ -75,7 +77,7 @@ jobs:
           dotnet-version: ${{ inputs.dotnet-version }}
           source-url: https://nuget.pkg.github.com/mathem-se/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY }}
+          NUGET_AUTH_TOKEN: ${{ secrets.GH_PACKAGE_READ_ONLY || 'NOTATOKEN' }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
